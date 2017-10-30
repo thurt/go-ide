@@ -1,39 +1,66 @@
-# Copyright 2015 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+FROM golang:1.8-stretch
+LABEL NAME="tahurt/go-ide" \
+    RUN="docker run \
+        -it \
+        --rm \
+        --mount type=bind,source=$HOME/Dropbox/Mackup,target=/home/user/Mackup \
+        --mount type=volume,source=go-src,target=/home/user/go/src tahurt/go-ide" \
+    MAINTAINER="taylor.a.hurt@gmail.com"
 
-FROM golang
+# if this is called "PIP_VERSION", pip explodes with "ValueError: invalid truth value '<VERSION>'" https://github.com/pypa/pip/issues/4528
+ENV LOCALE=en_US.UTF-8 \
+    SHELL=zsh \
+    EDITOR=vim \
+    PYTHON_PIP_VERSION=9.0.1 \
+    SCMPUFF_VERSION=0.2.1
 
-ENV EDITOR vim
-ENV SHELL zsh
-
-RUN apt-get -q update && \
-  apt-get install --no-install-recommends -y --force-yes -q \
+#openssl is at least required for python-pip
+RUN apt-get update && \
+  apt-get install --no-install-recommends -y \
+    build-essential \
     ca-certificates \
-    zsh \
-    tmux \
+    cmake \
     curl \
     git \
-    vim-nox \
-    rubygems \
-    build-essential \
-    cmake \
+    locales \
+    openssl \
     python-dev \
+    python-pip \
+    python-setuptools \
+    ruby \
+    rubygems \
+    sudo \
+    tmux \
+    vim-nox \
+    zsh \
     && \
   apt-get clean && \
   rm /var/lib/apt/lists/*_*
 
-RUN gem install tmuxinator
+#distro packages dont have recent versions of pip
+RUN pip install \
+    pip==${PYTHON_PIP_VERSION} \
+    mackup && \
+    rm -rf ~/.cache/pip/*
+
+RUN gem install tmuxinator && \
+    gem cleanup
+
+#INSTALL scmpuff (number aliases for git)
+RUN curl -L https://github.com/mroth/scmpuff/releases/download/v${SCMPUFF_VERSION}/scmpuff_${SCMPUFF_VERSION}_linux_amd64.tar.gz | \
+    tar -C /usr/local/bin -zxv scmpuff_${SCMPUFF_VERSION}_linux_amd64/scmpuff --strip=1
+
+#SET LOCALE 
+RUN sed -i -e "s/# ${LOCALE} UTF-8/${LOCALE} UTF-8/" /etc/locale.gen && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=$LOCALE
+
+#SETUP USER
+RUN groupadd -g 1000 user && useradd -u 1000 -g 1000 -m user && \
+    echo "user ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && \
+    chmod 0440 /etc/sudoers.d/user
+
+USER user 
 
 RUN go get github.com/nsf/gocode \
            golang.org/x/tools/cmd/goimports \
@@ -54,14 +81,22 @@ RUN mkdir -p ~/.vim/autoload ~/.vim/bundle && \
     git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree && \
     git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/vim-go
 
-RUN cd ~/.vim/bundle/YouCompleteMe && git submodule update --init --recursive && ./install.sh
+RUN cd ~/.vim/bundle/YouCompleteMe && \
+    git submodule update --init --recursive && \
+    ./install.py --gocode-completer
+
 RUN curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | /bin/zsh || true
 
-ADD vimrc /root/.vimrc
-ADD tmuxinator /root/.tmuxinator
-ADD tmux.conf /etc/tmux.conf
-ADD zshrc /root/.zshrc
+COPY --chown=1000:1000 \
+    .tmux.conf \
+    .mackup.cfg \
+    .container_startup.sh \
+    /home/user/
 
-VOLUME ["/go/src"]
+COPY --chown=1000:1000 \
+    .tmuxinator \
+    /home/user/.tmuxinator
 
-CMD ["/usr/local/bin/tmuxinator", "start", "default"]
+VOLUME ["/home/user/go/src"]
+
+ENTRYPOINT ["/home/user/.container_startup.sh"]
