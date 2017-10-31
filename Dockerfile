@@ -1,12 +1,4 @@
 FROM golang:1.8-stretch
-LABEL NAME="tahurt/go-ide" \
-    RUN="docker run \
-        -it \
-        --rm \
-        --mount type=bind,source=$HOME/Dropbox/Mackup,target=/home/user/Mackup \
-        --mount type=volume,source=go-src,target=/home/user/go/src tahurt/go-ide" \
-    MAINTAINER="taylor.a.hurt@gmail.com"
-
 # if this is called "PIP_VERSION", pip explodes with "ValueError: invalid truth value '<VERSION>'" https://github.com/pypa/pip/issues/4528
 ENV LOCALE=en_US.UTF-8 \
     SHELL=zsh \
@@ -85,18 +77,33 @@ RUN cd ~/.vim/bundle/YouCompleteMe && \
     git submodule update --init --recursive && \
     ./install.py --gocode-completer
 
-RUN curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | /bin/zsh || true
+RUN curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | \
+    /bin/zsh || true
 
-COPY --chown=1000:1000 \
+COPY \
     .tmux.conf \
     .mackup.cfg \
     .container_startup.sh \
     /home/user/
+RUN sudo chown 1000:1000 \
+    /home/user/.tmux.conf \
+    /home/user/.mackup.cfg \
+    /home/user/.container_startup.sh 
 
-COPY --chown=1000:1000 \
+COPY \
     .tmuxinator \
-    /home/user/.tmuxinator
+    /home/user/.tmuxinator/
+RUN sudo chown -hR 1000:1000 \
+    /home/user/.tmuxinator/
 
 VOLUME ["/home/user/go/src"]
 
 ENTRYPOINT ["/home/user/.container_startup.sh"]
+
+LABEL \
+    NAME="tahurt/go-ide" \
+    RUN="docker run -it --rm --mount type=volume,source=go-src,target=/home/user/go/src --mount type=bind,source=\$HOME/Dropbox/Mackup,target=/home/user/Mackup tahurt/go-ide" \
+    RUN_WITH_SSH_AGENT="docker run -it --rm --mount type=volume,source=go-src,target=/home/user/go/src --mount type=bind,source=\$HOME/Dropbox/Mackup,target=/home/user/Mackup --mount type=bind,source=\$SSH_AUTH_SOCK,target=/tmp/ssh_auth.sock --env SSH_AUTH_SOCK=/tmp/ssh_auth.sock tahurt/go-ide" \
+    MAINTAINER="taylor.a.hurt@gmail.com"
+
+
