@@ -3,8 +3,13 @@ FROM golang:1.8-stretch
 ENV LOCALE=en_US.UTF-8 \
     SHELL=zsh \
     EDITOR=vim \
+    GOPATH=/home/user/go \
+    PATH="${GOPATH}/bin:${PATH}" \
+    DOCKER_VERSION=17.09.0-ce \
+    PROTOC_VERSION=3.4.0 \
     PYTHON_PIP_VERSION=9.0.1 \
-    SCMPUFF_VERSION=0.2.1
+    SCMPUFF_VERSION=0.2.1 \
+    HUB_VERSION=2.2.9
 
 #openssl is at least required for python-pip
 RUN apt-get update && \
@@ -23,6 +28,7 @@ RUN apt-get update && \
     rubygems \
     sudo \
     tmux \
+    unzip \
     vim-nox \
     zsh \
     && \
@@ -38,9 +44,24 @@ RUN pip install \
 RUN gem install tmuxinator && \
     gem cleanup
 
+#INSTALL protoc (protocol buffer compiler)
+RUN curl -L -o /usr/local/protoc.zip https://github.com/google/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip && \
+    unzip /usr/local/protoc.zip -x readme.txt -d /usr/local && \
+    rm /usr/local/protoc.zip && \
+    chmod o+rx /usr/local/bin/protoc && \
+    chmod -R o+rX /usr/local/include/google/ 
+
 #INSTALL scmpuff (number aliases for git)
 RUN curl -L https://github.com/mroth/scmpuff/releases/download/v${SCMPUFF_VERSION}/scmpuff_${SCMPUFF_VERSION}_linux_amd64.tar.gz | \
     tar -C /usr/local/bin -zxv scmpuff_${SCMPUFF_VERSION}_linux_amd64/scmpuff --strip=1
+
+#INSTALL Docker client (excluding the daemon b/c i expect this container will i/a with host's daemon via docker.sock)
+RUN curl -L https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | \
+    tar -C /usr/local/bin -zxv docker/docker --strip=1
+
+#INSTALL Hub (command-line wrapper for git that makes you better at GitHub)
+RUN curl -L https://github.com/github/hub/releases/download/v${HUB_VERSION}/hub-linux-amd64-${HUB_VERSION}.tgz | \
+    tar -C /usr/local -zxv --exclude=README.md --exclude=LICENSE --exclude=install --strip=1
 
 #SET LOCALE 
 RUN sed -i -e "s/# ${LOCALE} UTF-8/${LOCALE} UTF-8/" /etc/locale.gen && \
@@ -52,17 +73,25 @@ RUN groupadd -g 1000 user && useradd -u 1000 -g 1000 -m user && \
     echo "user ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && \
     chmod 0440 /etc/sudoers.d/user
 
+RUN groupadd -g 126 docker && \
+    usermod -a -G docker user
+
 USER user 
 
-RUN go get github.com/nsf/gocode \
-           golang.org/x/tools/cmd/goimports \
-           github.com/rogpeppe/godef \
-           golang.org/x/tools/cmd/guru \
-           golang.org/x/tools/cmd/gorename \
-           github.com/golang/lint/golint \
-           github.com/kisielk/errcheck \
-           github.com/jstemmer/gotags \
-           github.com/garyburd/go-explorer/src/getool
+RUN go get \
+    github.com/garyburd/go-explorer/src/getool \
+    github.com/golang/lint/golint \
+    github.com/golang/protobuf/protoc-gen-go \
+    github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
+    github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
+    github.com/jstemmer/gotags \
+    github.com/kisielk/errcheck \
+    github.com/nsf/gocode \
+    github.com/rogpeppe/godef \
+    golang.org/x/tools/cmd/goimports \
+    golang.org/x/tools/cmd/gorename \
+    golang.org/x/tools/cmd/guru \
+    google.golang.org/grpc
 
 RUN mkdir -p ~/.vim/autoload ~/.vim/bundle && \
     git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim && \

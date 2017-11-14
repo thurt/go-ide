@@ -1,3 +1,4 @@
 .git
+.gitignore
 README.md
-LICENSE
+.*.s[a-w][a-z]
