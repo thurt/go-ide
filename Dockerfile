@@ -125,6 +125,12 @@ COPY \
 RUN sudo chown -hR 1000:1000 \
     /home/user/.tmuxinator/
 
+COPY \
+    .config \
+    /home/user/.config/
+RUN sudo chown -hR 1000:1000 \
+    /home/user/.config/
+
 VOLUME ["/home/user/go/src"]
 
 ENTRYPOINT ["/home/user/.container_startup.sh"]
