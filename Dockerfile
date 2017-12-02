@@ -4,7 +4,7 @@ ENV LOCALE=en_US.UTF-8 \
     SHELL=zsh \
     EDITOR=vim \
     GOPATH=/home/user/go \
-    PATH="${GOPATH}/bin:${PATH}" \
+    PATH="/home/user/go/bin:${PATH}" \
     DOCKER_VERSION=17.09.0-ce \
     PROTOC_VERSION=3.4.0 \
     PYTHON_PIP_VERSION=9.0.1 \
@@ -81,12 +81,14 @@ USER user
 RUN go get \
     github.com/garyburd/go-explorer/src/getool \
     github.com/golang/lint/golint \
+    github.com/golang/mock/mockgen \ 
     github.com/golang/protobuf/protoc-gen-go \
     github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
     github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
     github.com/jstemmer/gotags \
     github.com/kisielk/errcheck \
     github.com/nsf/gocode \
+    github.com/mwitkow/go-proto-validators/protoc-gen-govalidators \
     github.com/rogpeppe/godef \
     golang.org/x/tools/cmd/goimports \
     golang.org/x/tools/cmd/gorename \
