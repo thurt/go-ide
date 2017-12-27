@@ -25,6 +25,7 @@ RUN apt-get update && \
     python-pip \
     python-setuptools \
     ruby \
+    ruby-dev \
     rubygems \
     sudo \
     tmux \
@@ -42,6 +43,7 @@ RUN pip install \
     rm -rf ~/.cache/pip/*
 
 RUN gem install tmuxinator && \
+    gem install travis && \
     gem cleanup
 
 #INSTALL protoc (protocol buffer compiler)
