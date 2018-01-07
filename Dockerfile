@@ -78,6 +78,12 @@ RUN groupadd -g 126 docker && \
 
 USER user 
 
+#ADD github to ssh known_hosts
+# also see this link for explanation of ip ranges i added in ssh-keyscan https://unix.stackexchange.com/a/164434/255117
+RUN echo 'FOR CROSS-VERIFICATION, PLEASE CHECK THAT THE SHA256 RSA HASH ON STDOUT MATCHES WITH https://help.github.com/articles/github-s-ssh-key-fingerprints/' && \
+    mkdir /home/user/.ssh && \
+    ssh-keyscan -t rsa github.com,192.30.252.*,192.30.253.*,192.30.254.*,192.30.255.* | tee -a /home/user/.ssh/known_hosts | ssh-keygen -lf -
+
 #INSTALL Google Cloud SDK (gcloud), note: requires python2.7.x
 RUN curl -L https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | \
     tar -C /home/user -zxv && \
