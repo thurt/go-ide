@@ -16,10 +16,7 @@ ENV LOCALE=en_US.UTF-8 \
 RUN apt-get update && \
   apt-get install --no-install-recommends -y \
     build-essential \
-    ca-certificates \
     cmake \
-    curl \
-    git \
     locales \
     openssl \
     python-dev \
