@@ -135,12 +135,10 @@ RUN curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/instal
     /bin/zsh || true
 
 COPY \
-    .tmux.conf \
     .mackup.cfg \
     .container_startup.sh \
     /home/user/
 RUN sudo chown 1000:1000 \
-    /home/user/.tmux.conf \
     /home/user/.mackup.cfg \
     /home/user/.container_startup.sh 
 
