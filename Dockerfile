@@ -33,6 +33,7 @@ RUN apt-get update && \
     vim-nox \
     zsh \
     htop \
+    less \
     && \
   apt-get clean && \
   rm /var/lib/apt/lists/*_*
