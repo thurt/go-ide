@@ -2,5 +2,6 @@
 project_name: GoDev
 project_root: ~/go/src
 windows:
-  - editor: vim
-  - shell:
+    - editor: vim -c ':NERDTree github.com/thurt'
+    - shell: cd github.com/thurt
+        
