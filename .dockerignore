@@ -2,3 +2,4 @@
 .gitignore
 README.md
 .*.s[a-w][a-z]
+build_image.sh
