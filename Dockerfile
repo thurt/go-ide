@@ -1,4 +1,4 @@
-FROM tahurt/base-ide:latest 
+FROM gcr.io/learned-stone-189802/base-ide:latest 
 
 ENV \
     GOPATH=/home/user/go \
