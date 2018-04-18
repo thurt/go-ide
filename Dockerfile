@@ -9,7 +9,7 @@ ENV \
 #INSTALL go
 RUN \
     curl https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz | \
-    sudo tar zxv --directory /usr/local
+    sudo tar zx --directory /usr/local
 
 #INSTALL dep (dependency management for go: https://github.com/golang/dep)
 RUN curl -L -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/${DEP_VERSION}/dep-linux-amd64 && \
