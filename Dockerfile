@@ -2,19 +2,24 @@ FROM tahurt/base-ide:latest
 
 ENV \
     GOPATH=/home/user/go \
-    PATH="/home/user/go/bin:${PATH}" \
-    DEP_VERSION=v0.3.2 \
-    GOOGLE_CLOUD_SDK_VERSION=183.0.0 \
+    PATH="/usr/local/go/bin:/home/user/go/bin:${PATH}" \
+    GO_VERSION=1.10.1 \
+    DEP_VERSION=v0.4.1
+
+#INSTALL go
+RUN \
+    curl https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz | \
+    sudo tar zxv --directory /usr/local
 
 #INSTALL dep (dependency management for go: https://github.com/golang/dep)
 RUN curl -L -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/${DEP_VERSION}/dep-linux-amd64 && \
     chmod ugo+rx /usr/local/bin/dep
 
 #INSTALL Google Cloud SDK (gcloud), note: requires python2.7.x
-RUN curl -L https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | \
-    tar -C /home/user -zxv && \
-    /home/user/google-cloud-sdk/install.sh && \
-    /home/user/google-cloud-sdk/bin/gcloud components install app-engine-go
+#RUN curl -L https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | \
+#    tar -C /home/user -zxv && \
+#    /home/user/google-cloud-sdk/install.sh && \
+#    /home/user/google-cloud-sdk/bin/gcloud components install app-engine-go
 
 #Get some useful go packages
 RUN go get \
@@ -36,12 +41,15 @@ RUN go get \
 
 #SETUP YCM with go-completer
 RUN cd /home/user/.vim/bundle/YouCompleteMe && \
-    git submodule update --init --recursive && \
     ./install.py --go-completer
+
+COPY --chown=1000:1000 \
+    .entrypoint.sh \
+    /home/user/
 
 VOLUME ["/home/user/go/src"]
 
-ENTRYPOINT ["${HOME}/.entrypoint.sh"]
+ENTRYPOINT ["/home/user/.entrypoint.sh"]
 
 LABEL \
     NAME="tahurt/go-ide" \
