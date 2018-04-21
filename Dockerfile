@@ -40,6 +40,10 @@ RUN go get \
     golang.org/x/tools/cmd/guru \
     google.golang.org/grpc
 
+#INSTALL vim plugins: go-explorer, vim-go
+RUN git clone https://github.com/garyburd/go-explorer.git ~/.vim/bundle/go-explorer && \
+    git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/vim-go
+
 #SETUP YCM with go-completer
 RUN cd /home/user/.vim/bundle/YouCompleteMe && \
     ./install.py --go-completer
