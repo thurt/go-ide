@@ -42,7 +42,8 @@ RUN go get \
 
 #INSTALL vim plugins: go-explorer, vim-go
 RUN git clone https://github.com/garyburd/go-explorer.git ~/.vim/bundle/go-explorer && \
-    git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/vim-go
+    git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/vim-go && \
+    vim -c ":GoInstallBinaries"
 
 #SETUP YCM with go-completer
 RUN cd /home/user/.vim/bundle/YouCompleteMe && \
