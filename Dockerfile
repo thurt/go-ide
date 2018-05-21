@@ -5,7 +5,8 @@ ENV \
     PATH="/usr/local/go/bin:/home/user/go/bin:${PATH}" \
     GO_VERSION=1.10.1 \
     DEP_VERSION=v0.4.1 \
-    GOOGLE_CLOUD_SDK_VERSION=198.0.0
+    GOOGLE_CLOUD_SDK_VERSION=198.0.0 \
+    VIMGO_VERSION=1.16
 
 #INSTALL go
 RUN \
@@ -41,8 +42,10 @@ RUN go get \
     google.golang.org/grpc
 
 #INSTALL vim plugins: go-explorer, vim-go
-RUN git clone https://github.com/garyburd/go-explorer.git ~/.vim/bundle/go-explorer && \
-    git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/vim-go && \
+RUN cd ~/.vim/bundle && \
+    git clone https://github.com/garyburd/go-explorer.git ./go-explorer && \
+    git clone https://github.com/fatih/vim-go.git ./vim-go && \
+    cd ./vim-go && git checkout v${VIMGO_VERSION} && \
     vim -c ":GoInstallBinaries"
 
 #SETUP YCM with go-completer
