@@ -47,7 +47,11 @@ RUN cd ~/.vim/bundle && \
     git clone https://github.com/fatih/vim-go.git ./vim-go && \
     cd ./vim-go && git checkout v${VIMGO_VERSION}
 
-RUN echo "execute pathogen#infect()" >> ~/.vimrc && \
+RUN \
+    # required for pathogen vim plugins
+    echo "execute pathogen#infect()" >> ~/.vimrc && \
+    # required for YouCompleteMe
+    echo "set encoding=utf-8" >> ~/.vimrc && \
     vim -c ":GoInstallBinaries"
 
 #SETUP YCM with go-completer
