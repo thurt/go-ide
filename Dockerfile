@@ -52,7 +52,7 @@ RUN \
     echo "execute pathogen#infect()" >> ~/.vimrc && \
     # required for YouCompleteMe
     echo "set encoding=utf-8" >> ~/.vimrc && \
-    vim -c ":GoInstallBinaries"
+    vim -c ':GoInstallBinaries' -c ':qa!'
 
 #SETUP YCM with go-completer
 RUN cd /home/user/.vim/bundle/YouCompleteMe && \
