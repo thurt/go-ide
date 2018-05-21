@@ -45,7 +45,9 @@ RUN go get \
 RUN cd ~/.vim/bundle && \
     git clone https://github.com/garyburd/go-explorer.git ./go-explorer && \
     git clone https://github.com/fatih/vim-go.git ./vim-go && \
-    cd ./vim-go && git checkout v${VIMGO_VERSION} && \
+    cd ./vim-go && git checkout v${VIMGO_VERSION}
+
+RUN echo "execute pathogen#infect()" >> ~/.vimrc && \
     vim -c ":GoInstallBinaries"
 
 #SETUP YCM with go-completer
