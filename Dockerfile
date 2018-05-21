@@ -19,7 +19,7 @@ RUN curl -L -o /usr/local/bin/dep https://github.com/golang/dep/releases/downloa
 
 #INSTALL Google Cloud SDK (gcloud), note: requires python2.7.x
 RUN curl -L https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | \
-    tar -C /home/user -zxv && \
+    tar -C /home/user -zx && \
     /home/user/google-cloud-sdk/install.sh && \
     /home/user/google-cloud-sdk/bin/gcloud components install app-engine-go
 
