@@ -10,15 +10,15 @@ ENV \
 
 #INSTALL go
 RUN \
-    curl https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz | \
+    curl https://dl.google.com/go/go"$GO_VERSION".linux-amd64.tar.gz | \
     sudo tar zx --directory /usr/local
 
 #INSTALL dep (dependency management for go: https://github.com/golang/dep)
-RUN curl -L -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/${DEP_VERSION}/dep-linux-amd64 && \
+RUN curl -L -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/"$DEP_VERSION"/dep-linux-amd64 && \
     chmod ugo+rx /usr/local/bin/dep
 
 #INSTALL Google Cloud SDK (gcloud), note: requires python2.7.x
-RUN curl -L https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | \
+RUN curl -L https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-"$GOOGLE_CLOUD_SDK_VERSION"-linux-x86_64.tar.gz | \
     tar -C /home/user -zx && \
     /home/user/google-cloud-sdk/install.sh && \
     /home/user/google-cloud-sdk/bin/gcloud components install app-engine-go
@@ -45,7 +45,7 @@ RUN go get \
 RUN cd ~/.vim/bundle && \
     git clone https://github.com/garyburd/go-explorer.git ./go-explorer && \
     git clone https://github.com/fatih/vim-go.git ./vim-go && \
-    cd ./vim-go && git checkout v${VIMGO_VERSION}
+    cd ./vim-go && git checkout v"$VIMGO_VERSION"
 
 RUN \
     # required for pathogen vim plugins
